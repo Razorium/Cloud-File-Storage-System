@@ -7,6 +7,7 @@ export default function Home() {
 	const [uploadedFiles, setUploadedFiles] = useState(null);
 	const [status, setStatus] = useState("");
 	const [sentData, setSentData] = useState(new FormData());
+	const URL = "http://98.83.217.172:5000/";
 
 	const handleFileChange = (event) => {
 		const file = event.target.files[0];
@@ -98,13 +99,10 @@ export default function Home() {
 									}
 
 									try {
-										const response = await fetch(
-											"http://98.83.217.172:5000/upload",
-											{
-												method: "POST",
-												body: sentData,
-											}
-										);
+										const response = await fetch(URL + "upload", {
+											method: "POST",
+											body: sentData,
+										});
 
 										console.log("Response status:", response.status);
 										const responseData = await response.json();
