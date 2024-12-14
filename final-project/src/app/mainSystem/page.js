@@ -8,7 +8,7 @@ export default function Home() {
 	const searchParams = useSearchParams();
 	const username = searchParams.get("username");
 	const [isOpen, setIsOpen] = useState(false);
-	const [uploadedFiles, setUploadedFiles] = useState(null);
+	const [uploadedFiles, setUploadedFiles] = useState([]);
 	const [status, setStatus] = useState("");
 	const [sentData, setSentData] = useState(new FormData());
 	const URL = "http://3.209.51.201:5000/";
@@ -33,13 +33,8 @@ export default function Home() {
 	}, []);
 
 	const handleFileChange = (event) => {
-		const file = event.target.files[0];
-		console.log(file);
-		const newsentData = new FormData();
-		newsentData.append("file", file);
-		setSentData(newsentData);
-		setUploadedFiles(file);
-		console.log(newsentData);
+		const files = Array.from(event.target.files);
+		setUploadedFiles(files);
 		setStatus("");
 	};
 
@@ -150,6 +145,55 @@ export default function Home() {
 		}
 	};
 
+	const uploadFiles = async () => {
+		if (uploadedFiles.length === 0) {
+			setStatus("Please select files first");
+			return;
+		}
+
+		try {
+			const uploadPromises = uploadedFiles.map(async (file) => {
+				const formData = new FormData();
+				formData.append("file", file);
+
+				const response = await fetch(
+					URL + `upload?username=${username}`,
+					{
+						method: "POST",
+						body: formData,
+					}
+				);
+
+				return response.ok;
+			});
+
+			const results = await Promise.all(uploadPromises);
+			
+			if (results.every(result => result)) {
+				setStatus("All files uploaded successfully");
+				setUploadedFiles([]);
+				setTimeout(() => {
+					setIsOpen(false);
+					setStatus("");
+				}, 2000);
+				loadData();
+			} else {
+				setStatus("Some files failed to upload");
+				setTimeout(() => {
+					setIsOpen(false);
+					setStatus("");
+				}, 2000);
+			}
+		} catch (error) {
+			console.error("Upload error:", error);
+			setStatus("Upload failed");
+			setTimeout(() => {
+				setIsOpen(false);
+				setStatus("");
+			}, 2000);
+		}
+	};
+
 	return (
 		<main className="min-h-screen bg-gray-50">
 			<nav className="flex items-center justify-between px-6 py-3 bg-white border-b">
@@ -253,6 +297,7 @@ export default function Home() {
 									className="hidden"
 									id="fileInput"
 									onChange={handleFileChange}
+									multiple
 								/>
 								<label
 									htmlFor="fileInput"
@@ -260,68 +305,25 @@ export default function Home() {
 								>
 									Click to upload or drag and drop
 								</label>
-								{uploadedFiles && (
-									<div className="mt-3 p-2 bg-gray-100 rounded">
-										<p className="text-sm text-gray-700">Selected file:</p>
-										<div className="flex items-center justify-between mt-1">
-											<span className="text-sm font-medium text-blue-600">
-												{uploadedFiles.name}
-											</span>
-											<span className="text-xs text-gray-500">
-												{(uploadedFiles.size / 1024).toFixed(2)} KB
-											</span>
-										</div>
+								{uploadedFiles.length > 0 && (
+									<div className="mt-3 p-2 bg-gray-100 rounded max-h-40 overflow-y-auto">
+										<p className="text-sm text-gray-700">Selected files:</p>
+										{uploadedFiles.map((file, index) => (
+											<div key={index} className="flex items-center justify-between mt-1">
+												<span className="text-sm font-medium text-blue-600">
+													{file.name}
+												</span>
+												<span className="text-xs text-gray-500">
+													{(file.size / 1024).toFixed(2)} KB
+												</span>
+											</div>
+										))}
 									</div>
 								)}
 							</div>
 							<button
 								className="w-full py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
-								onClick={async () => {
-									if (!uploadedFiles) {
-										setStatus("Please select a file first");
-										return;
-									}
-
-									try {
-										const response = await fetch(
-											URL + `upload?username=${username}`,
-											{
-												method: "POST",
-												body: sentData,
-											}
-										);
-
-										console.log("Response status:", response.status);
-										const responseData = await response.json();
-										console.log("Response data:", responseData);
-										console.log(responseData.filename);
-
-										if (response.ok) {
-											setStatus("File uploaded successfully");
-											setUploadedFiles(null);
-											setTimeout(() => {
-												setIsOpen(false);
-												setStatus("");
-											}, 2000);
-											loadData();
-										} else {
-											setStatus("Upload failed");
-											setTimeout(() => {
-												setIsOpen(false);
-												setStatus("");
-											}, 2000);
-										}
-									} catch (error) {
-										console.error("Upload error:", error);
-										setStatus("Upload failed");
-										setTimeout(() => {
-											setIsOpen(false);
-											setStatus("");
-										}, 2000);
-									}
-
-									setUploadedFiles(null);
-								}}
+								onClick={uploadFiles}
 							>
 								Upload
 							</button>
