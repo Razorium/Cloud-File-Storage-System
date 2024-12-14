@@ -1,12 +1,6 @@
 import { useState } from "react";
 
-export default function FileCard({
-	file,
-	onDownload,
-	onDelete,
-	onViewInfo,
-	onRename,
-}) {
+export default function FileCardTrash({ file, onDelete, onRestore }) {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 
 	return (
@@ -43,38 +37,20 @@ export default function FileCard({
 						<button
 							onClick={() => {
 								setIsMenuOpen(false);
-								onDownload();
-							}}
-							className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
-						>
-							Download
-						</button>
-						<button
-							onClick={() => {
-								setIsMenuOpen(false);
 								onDelete();
 							}}
 							className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
 						>
-							Delete
+							Delete Permanently
 						</button>
 						<button
 							onClick={() => {
 								setIsMenuOpen(false);
-								onRename();
+								onRestore();
 							}}
 							className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
 						>
-							Rename
-						</button>
-						<button
-							onClick={() => {
-								setIsMenuOpen(false);
-								onViewInfo();
-							}}
-							className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
-						>
-							View Info
+							Restore
 						</button>
 					</div>
 				</div>
