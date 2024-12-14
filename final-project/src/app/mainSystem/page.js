@@ -260,6 +260,19 @@ export default function Home() {
 								>
 									Click to upload or drag and drop
 								</label>
+								{uploadedFiles && (
+									<div className="mt-3 p-2 bg-gray-100 rounded">
+										<p className="text-sm text-gray-700">Selected file:</p>
+										<div className="flex items-center justify-between mt-1">
+											<span className="text-sm font-medium text-blue-600">
+												{uploadedFiles.name}
+											</span>
+											<span className="text-xs text-gray-500">
+												{(uploadedFiles.size / 1024).toFixed(2)} KB
+											</span>
+										</div>
+									</div>
+								)}
 							</div>
 							<button
 								className="w-full py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
