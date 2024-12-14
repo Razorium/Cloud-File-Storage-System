@@ -156,20 +156,17 @@ export default function Home() {
 				const formData = new FormData();
 				formData.append("file", file);
 
-				const response = await fetch(
-					URL + `upload?username=${username}`,
-					{
-						method: "POST",
-						body: formData,
-					}
-				);
+				const response = await fetch(URL + `upload?username=${username}`, {
+					method: "POST",
+					body: formData,
+				});
 
 				return response.ok;
 			});
 
 			const results = await Promise.all(uploadPromises);
-			
-			if (results.every(result => result)) {
+
+			if (results.every((result) => result)) {
 				setStatus("All files uploaded successfully");
 				setUploadedFiles([]);
 				setTimeout(() => {
@@ -309,7 +306,10 @@ export default function Home() {
 									<div className="mt-3 p-2 bg-gray-100 rounded max-h-40 overflow-y-auto">
 										<p className="text-sm text-gray-700">Selected files:</p>
 										{uploadedFiles.map((file, index) => (
-											<div key={index} className="flex items-center justify-between mt-1">
+											<div
+												key={index}
+												className="flex items-center justify-between mt-1"
+											>
 												<span className="text-sm font-medium text-blue-600">
 													{file.name}
 												</span>
