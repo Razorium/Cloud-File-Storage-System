@@ -77,6 +77,8 @@ def list_file():
         response = jsonify({"error": "File not found"}), 404
         return response
 
+##########################################################################################    
+
 @app.route('/remove', methods=['GET'])
 def remove_file():
     username = request.args.get('username')
@@ -143,14 +145,17 @@ def check_file():
     username = request.args.get('username')
     filename = request.args.get('filename')
     path = "/home/ubuntu/storage/" + username  + "/" + filename
-    
+    response = 0
     
     if(os.path.exists(path)):
-        return "True"
+        response = jsonify({"message":"True"})
+        return response
     else:
-        return "False"
+        response = jsonify({"message":"False"})
+        return response
 
 ##########################################################################################
+
 
 app.run(host='0.0.0.0', port=5000)
 

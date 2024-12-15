@@ -79,8 +79,11 @@ def download_file():
         url = f"http://{server}:5000/check"
         params = {"username": username, "filename": filename}
         try:
-            interResponse = requests.get(url, params = params)
+            interResponse = requests.get(url, params = params).json()["message"]
+            
+            print(f"interResponse = {interResponse}")
             if(interResponse=="False"):
+                print(f"missing in server {server}")
                 missingServer.append(server)
             else:
                 secondaryUp = server
@@ -113,11 +116,12 @@ def download_file():
         except:
             print(f"file failed to get from {secondaryUp}")
     
+    
+    print(f"missing server: {missingServer}")
     #write to missing secondary server if file missing
     for server in missingServer:
-        
         url = f"http://{server}:5000/upload"
-        
+        print(f"restoring in {server}")
         try:
             with open(path, 'rb') as f:
                 files = {'file': (filename, f)}
@@ -399,6 +403,17 @@ def restore_trash():
     except:  
         print("delete trash failed")
         return response
+    
+    #forward request to secondary
+    for server in secondaryServer:
+        url = f"http://{server}:5000/upload"
+        
+        try:
+            with open(file_path, 'rb') as f:
+                files = {'file': (filename, f)}
+                requests.post(url, files = files, params = {"username":username})
+        except requests.exceptions.RequestException as e:
+            print(f"File failed to upload to {server}: {e}")
     
         
     response = jsonify({"message": "Delete Success"})
